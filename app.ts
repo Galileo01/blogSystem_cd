@@ -1,8 +1,7 @@
-import Koa from 'koa'
+import Koa from 'koa';
+import router from './router'
 const app = new Koa();
-app.use((ctx, next) => {
-  ctx.body = 'hello word'
-})
+app.use(router.routes()).use(router.allowedMethods())
 app.listen(8080, () => {
   console.log('server is running at 8080 ');
 
