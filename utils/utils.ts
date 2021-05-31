@@ -1,6 +1,6 @@
 //转义特殊字符
-export function translate(str: string, mode: number = 1) {
-    if (mode === 1) {
+export function translateSpecialChar(str: string, mode: 'read' | 'write') {
+    if (mode === 'write') {
         //sql 写入
         str = str.replace(/'/g, '$@');
         // str = str.replace('\r', 'CHAR(10)');
@@ -11,4 +11,13 @@ export function translate(str: string, mode: number = 1) {
         // str = str.replace(/CHAR(13)/g, '\n');
     }
     return str;
+}
+//转换对象 简单
+export function tranformToValues(data: { [key: string]: any }) {
+    const items = [];
+    for (const prop in data) {
+        const value = typeof data[prop] === 'string' ? `"${data[prop]}"` : `${data[prop]}`;//字符串 必须包裹在“”之间
+        items.push(`${value || 'NULL'}`);
+    }
+    return items.join(',');
 }

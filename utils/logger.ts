@@ -1,5 +1,4 @@
 import log4js from 'log4js';
-
 log4js.configure({
     appenders: {
         out: { type: 'stdout' }, //设置是否在控制台打印日志
