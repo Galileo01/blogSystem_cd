@@ -2,10 +2,12 @@
 export interface USerSchema {
   Uid: number,
   name: string,
+  role: number,
   emial: string,
   tel: number,
   password: string,
   wid: string,
+  avatar: string;
   createTime: number
 }
 

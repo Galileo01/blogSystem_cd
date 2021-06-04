@@ -9,18 +9,30 @@ const router = new Router({
 //新建 评论
 router.post('/add', async (ctx, next) => {
   const { Pid, content, username, replayCid } = ctx.request.body;
+  //创建评论本身
   const result = await query<AffectedRes>(`
     INSERT INTO comment
     VALUES(
       NULL,${Pid},${replayCid || 'NULL'},'${content}','${username}',now()
     )
     `);
-  console.log(result);
+  //更新 post 
+  const reuslt1 = await query<AffectedRes>(`
+  UPDATE post
+    SET 
+      commentCount=commentCount+1
+    WHERE Pid=${Pid}
+  `)
+  //重新 从数据库中查询 评论内容
+  const result2 = await query<SelectRes<CommentSchema>>(`
+  SELECT *
+  FROM comment
+  WHERE Cid=${result.insertId}
+  `);
+  console.log(result, reuslt1);
   ctx.body = {
     success: 1,
-    data: {
-      Cid: result.insertId
-    }
+    data: result2[0]
   }
 })
 
@@ -33,9 +45,11 @@ router.get('/getByPid', async (ctx, next) => {
     WHERE Pid=${Pid}
     ORDER BY commentTime DESC
     `);
+  console.log(result);
+
   ctx.body = {
     success: 1,
-    commentList: result
+    data: result
   }
 })
 
@@ -48,7 +62,7 @@ router.post('/deleteByCid', async (ctx, next) => {
   if (result.affectedRows === 0) {
     ctx.body = {
       success: 0,
-      msg: `不存在Cid = ${Cid} 评论`
+      data: `不存在Cid = ${Cid} 评论`
     }
   }
   else {

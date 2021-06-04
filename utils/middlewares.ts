@@ -1,6 +1,7 @@
 import Koa from 'koa';
 import { logger } from './logger';
 import jwt from 'jsonwebtoken';
+import tokenConfig from '../config/token'
 //日志 中间件
 export async function logerMid(ctx: Koa.Context, next: Koa.Next) {
   const { url, header, method, status } = ctx;
@@ -18,10 +19,20 @@ export async function errMid(ctx: Koa.Context, next: Koa.Next) {
   }
   catch (err) {
     logger.error(`ERROR ${err}`);
+    ctx.response.status = 500;//状态码强制设置为 500
     ctx.body = {
       success: 0,
       errCode: 500,
-      msg: err + ''
+      data: err + ''
     }
   }
+}
+//token 解析中间件
+export async function tokenMid(ctx: Koa.Context, next: Koa.Next) {
+  //解析token  存在 请求头
+  if (ctx.header?.authorization) {
+    const userInfoInToken = jwt.verify(ctx.header?.authorization?.slice(7) || '', tokenConfig.secret);
+    ctx.state.userInfoInToken = userInfoInToken;
+  }
+  await next();
 }
